@@ -6,10 +6,12 @@ import { provideRouter, Routes } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
 import { PivotComponent } from './pivot/pivot.component';
 import { OcrComponent } from './ocr/ocr.component';
+import { TesseractOcr } from './tesseract-ocr/tesseract-ocr';
 
 const routes: Routes = [
   { path: 'pivot', component: PivotComponent },
   { path: 'ocr', component: OcrComponent },
+  { path: 'tesseract-ocr', component: TesseractOcr },
   { path: '', redirectTo: '/pivot', pathMatch: 'full' }
 ];
 
