@@ -18,7 +18,24 @@
         </div>
       </div>
     </div>
-
+    <!-- Layout Manager Toolbar -->
+    <div class="layout-toolbar">
+      <div class="layout-save">
+        <input type="text" [(ngModel)]="layoutName" placeholder="Name your layout..." class="layout-input">
+        <button class="btn btn-save" [disabled]="isSaving || !layoutName" (click)="saveLayout()">
+          {{ isSaving ? 'Saving...' : 'Save Layout' }}
+        </button>
+      </div>
+      <div class="layout-load">
+        <select class="layout-select" (change)="loadLayout(savedLayouts[$any($event.target).value]?.state)">
+          <option value="" disabled selected>Load a Layout...</option>
+          <option *ngFor="let layout of savedLayouts; let i = index" [value]="i">
+            {{ layout.name }}
+          </option>
+        </select>
+        <span *ngIf="isLoadingLayouts" class="loading-spinner"><i class="pi pi-spin pi-spinner"></i></span>
+      </div>
+    </div>
     <!-- Drag & Drop Grouping Panel -->
     <div class="grouping-container">
       
@@ -74,7 +91,7 @@
              cdkDropListOrientation="horizontal"
              (cdkDropListDropped)="drop($event)">
              
-          <div class="empty-group" *ngIf="pivotFields?.length === 0 || !pivotFields" style="position: absolute; pointer-events: none;">Drag here...</div>
+          <div class="empty-group" *ngIf="pivotFields.length === 0 || !pivotFields" style="position: absolute; pointer-events: none;">Drag here...</div>
           
           <ng-container *ngFor="let field of pivotFields; let last = last">
             <div class="row-pill pivoted" cdkDrag>

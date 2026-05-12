@@ -1,18 +1,28 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { CdkDragDrop, DragDropModule, moveItemInArray, transferArrayItem, copyArrayItem } from '@angular/cdk/drag-drop';
 import { TabulatorComponent } from '../tabulator/tabulator';
+import { SupabaseService } from '../supabase.service';
 
 @Component({
   selector: 'app-pivot',
   standalone: true,
-  imports: [CommonModule, TabulatorComponent, DragDropModule],
+  imports: [CommonModule, FormsModule, TabulatorComponent, DragDropModule],
   templateUrl: './pivot.component.html',
   styleUrls: ['./pivot.component.css']
 })
 export class PivotComponent implements OnInit {
   rawData: any[] = [];
   pivotData: any[] = []; // Output of the pivot engine
+
+  // Layout Management
+  layoutName: string = '';
+  savedLayouts: any[] = [];
+  isSaving: boolean = false;
+  isLoadingLayouts: boolean = false;
+
+  constructor(private supabase: SupabaseService, private cdr: ChangeDetectorRef) {}
 
   pinTitleFormatter = (cell: any) => {
     // Tabulator 5+ passes the column component directly to titleFormatter
@@ -101,6 +111,62 @@ export class PivotComponent implements OnInit {
   ngOnInit() {
     this.generateMockData(20); // Generate 20 rows per region to make data dense and realistic
     this.rebuildPivotAndColumns(); // Initialize
+    this.fetchLayouts();
+  }
+
+  async fetchLayouts() {
+    this.isLoadingLayouts = true;
+    try {
+      this.savedLayouts = await this.supabase.getLayouts();
+    } catch (err) {
+      console.error('Failed to fetch layouts', err);
+    } finally {
+      this.isLoadingLayouts = false;
+      this.cdr.detectChanges();
+    }
+  }
+
+  async saveLayout() {
+    if (!this.layoutName.trim()) {
+      alert('Please enter a layout name.');
+      return;
+    }
+
+    this.isSaving = true;
+    const state = {
+      availableGroupingFields: this.availableGroupingFields,
+      groupedFields: this.groupedFields,
+      pivotFields: this.pivotFields,
+      valueFields: this.valueFields,
+      groupByField: this.groupByField
+    };
+
+    try {
+      await this.supabase.saveLayout(this.layoutName, state);
+      this.layoutName = ''; // Clear input
+      await this.fetchLayouts(); // Refresh list
+      alert('Layout saved successfully!');
+    } catch (err: any) {
+      console.error('Save error:', err);
+      if (err.message && err.message.includes('fetch')) {
+        alert('Failed to connect to Supabase. Did you update SUPABASE_URL and SUPABASE_KEY in supabase.service.ts?');
+      } else {
+        alert('Failed to save layout: ' + err.message);
+      }
+    } finally {
+      this.isSaving = false;
+      this.cdr.detectChanges();
+    }
+  }
+
+  loadLayout(layoutState: any) {
+    if (!layoutState) return;
+    this.availableGroupingFields = layoutState.availableGroupingFields || [];
+    this.groupedFields = layoutState.groupedFields || [];
+    this.pivotFields = layoutState.pivotFields || [];
+    this.valueFields = layoutState.valueFields || [];
+    this.groupByField = layoutState.groupByField || '';
+    this.rebuildPivotAndColumns();
   }
 
   rebuildPivotAndColumns() {
