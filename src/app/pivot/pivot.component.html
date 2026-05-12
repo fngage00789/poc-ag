@@ -98,7 +98,7 @@
              cdkDropListOrientation="horizontal"
              (cdkDropListDropped)="drop($event)">
              
-          <div class="empty-group" *ngIf="valueFields?.length === 0 || !valueFields" style="position: absolute; pointer-events: none;">Drag here...</div>
+          <div class="empty-group" *ngIf="valueFields.length === 0 || !valueFields" style="pointer-events: none;">Drag here...</div>
           
           <ng-container *ngFor="let field of valueFields; let last = last">
             <div class="row-pill valued" cdkDrag>
