@@ -55,31 +55,6 @@ export class AppComponent implements OnInit {
       { title: 'Month', field: 'Month', headerFilter: 'input', width: 100, titleFormatter: this.pinTitleFormatter },
       { title: 'Category', field: 'Category', headerFilter: 'input', width: 150, titleFormatter: this.pinTitleFormatter },
       { title: 'Product', field: 'Product', headerFilter: 'input', width: 150, titleFormatter: this.pinTitleFormatter },
-      { title: 'Manager', field: 'Manager', headerFilter: 'input', width: 150, titleFormatter: this.pinTitleFormatter },
-      { title: 'Customer', field: 'Customer', headerFilter: 'input', width: 150, titleFormatter: this.pinTitleFormatter },
-      { title: 'Status', field: 'Status', headerFilter: 'input', width: 120, titleFormatter: this.pinTitleFormatter },
-      { title: 'Priority', field: 'Priority', headerFilter: 'input', width: 100, titleFormatter: this.pinTitleFormatter },
-      { title: 'Ship Mode', field: 'ShipMode', headerFilter: 'input', width: 120, titleFormatter: this.pinTitleFormatter },
-      { title: 'Warehouse', field: 'Warehouse', headerFilter: 'input', width: 130, titleFormatter: this.pinTitleFormatter },
-      { title: 'Supplier', field: 'Supplier', headerFilter: 'input', width: 150, titleFormatter: this.pinTitleFormatter },
-      { title: 'Currency', field: 'Currency', headerFilter: 'input', width: 90, titleFormatter: this.pinTitleFormatter },
-      { title: 'Order Date', field: 'OrderDate', headerFilter: 'input', width: 120, titleFormatter: this.pinTitleFormatter },
-      { 
-        title: 'Tax', field: 'Tax', headerFilter: 'number', width: 100,
-        hozAlign: 'right', formatter: 'money', formatterParams: { symbol: '$' },
-        bottomCalc: 'sum', bottomCalcFormatter: 'money', bottomCalcFormatterParams: { symbol: '$' },
-        titleFormatter: this.pinTitleFormatter
-      },
-      { 
-        title: 'Shipping Cost', field: 'ShippingCost', headerFilter: 'number', width: 120,
-        hozAlign: 'right', formatter: 'money', formatterParams: { symbol: '$' },
-        bottomCalc: 'sum', bottomCalcFormatter: 'money', bottomCalcFormatterParams: { symbol: '$' },
-        titleFormatter: this.pinTitleFormatter
-      },
-      { 
-        title: 'Margin', field: 'Margin', headerFilter: 'number', hozAlign: 'right', width: 100,
-        formatter: (cell: any) => cell.getValue() + '%', titleFormatter: this.pinTitleFormatter
-      },
       { 
         title: 'Sales', field: 'Sales', headerFilter: 'number', width: 120,
         hozAlign: 'right', formatter: 'money', formatterParams: { symbol: '$' },
@@ -93,23 +68,22 @@ export class AppComponent implements OnInit {
         titleFormatter: this.pinTitleFormatter
       },
       { 
-        title: 'Discount', field: 'Discount', headerFilter: 'number', hozAlign: 'right', width: 100,
-        formatter: (cell: any) => cell.getValue() + '%', titleFormatter: this.pinTitleFormatter
+        title: 'Margin', field: 'Margin', headerFilter: 'number', hozAlign: 'right', width: 100,
+        formatter: (cell: any) => {
+          const val = cell.getValue();
+          return val != null ? val + '%' : '';
+        }, titleFormatter: this.pinTitleFormatter
       },
       { 
         title: 'Qty', field: 'Qty', headerFilter: 'number', hozAlign: 'right', width: 100,
         bottomCalc: 'sum', titleFormatter: this.pinTitleFormatter
-      },
-      { 
-        title: 'Rating', field: 'Rating', headerFilter: 'number', hozAlign: 'right', width: 100,
-        formatter: 'star', titleFormatter: this.pinTitleFormatter
       }
     ];
   }
 
   tabulatorColumns: any[] = [];
   
-  availableGroupingFields: string[] = ['Region', 'Branch', 'Year', 'Month', 'Category', 'Product', 'Manager', 'Customer', 'Status', 'Priority', 'ShipMode', 'Warehouse', 'Supplier', 'Currency', 'OrderDate', 'Sales', 'Profit', 'Qty', 'Tax', 'ShippingCost', 'Margin', 'Discount', 'Rating'];
+  availableGroupingFields: string[] = ['Region', 'Branch', 'Year', 'Month', 'Category', 'Product', 'Profit', 'Margin'];
   groupedFields: string[] = [];
   pivotFields: string[] = [];
   valueFields: string[] = ['Sales', 'Qty']; // Default values to aggregate
@@ -122,10 +96,10 @@ export class AppComponent implements OnInit {
   }
 
   // Used to distinguish metrics from dimensions
-  allMetricFields: string[] = ['Sales', 'Profit', 'Qty', 'Tax', 'ShippingCost', 'Margin', 'Discount', 'Rating'];
+  allMetricFields: string[] = ['Sales', 'Profit', 'Qty', 'Margin'];
 
   ngOnInit() {
-    this.generateMockData(10); // Generate 10 rows per region
+    this.generateMockData(20); // Generate 20 rows per region to make data dense and realistic
     this.rebuildPivotAndColumns(); // Initialize
   }
 
@@ -136,7 +110,10 @@ export class AppComponent implements OnInit {
     
     // If Pivot Mode is OFF, just show standard data and Tabulator grouping
     if (!this.isPivotMode) {
-      this.tabulatorColumns = baseCols;
+      this.tabulatorColumns = baseCols.map(col => ({
+        ...col,
+        visible: !this.groupedFields.includes(col.field)
+      }));
       this.pivotData = this.rawData;
       return;
     }
@@ -148,7 +125,12 @@ export class AppComponent implements OnInit {
     // 2. Add Active Dimensions to the dynamic columns array
     activeDimensions.forEach(dim => {
       const colDef = baseCols.find((c: any) => c.field === dim);
-      if (colDef) dynamicColumns.push(colDef);
+      if (colDef) {
+        dynamicColumns.push({
+          ...colDef,
+          visible: !this.groupedFields.includes(dim)
+        });
+      }
     });
 
     if (!this.pivotFields || this.pivotFields.length === 0) {
@@ -215,10 +197,10 @@ export class AppComponent implements OnInit {
          flatRow[dim] = rowsInGroup[0][dim];
        });
 
-       // Initialize metric totals to 0
+       // Initialize metric totals to null to represent empty intersections
        Array.from(uniquePivotKeys).forEach(pivotKey => {
          this.valueFields.forEach(metric => {
-           flatRow[`${pivotKey}_${metric}`] = 0;
+           flatRow[`${pivotKey}_${metric}`] = null;
          });
        });
 
@@ -226,7 +208,9 @@ export class AppComponent implements OnInit {
        rowsInGroup.forEach(row => {
          const rowPivotKey = this.pivotFields.map(f => row[f]).join('_');
          this.valueFields.forEach(metric => {
-            flatRow[`${rowPivotKey}_${metric}`] += (Number(row[metric]) || 0);
+            const key = `${rowPivotKey}_${metric}`;
+            if (flatRow[key] === null) flatRow[key] = 0;
+            flatRow[key] += (Number(row[metric]) || 0);
          });
        });
 
@@ -302,21 +286,12 @@ export class AppComponent implements OnInit {
       const item = event.previousContainer.data[event.previousIndex];
       // Prevent duplicates in the target bucket
       if (!event.container.data.includes(item)) {
-        if (event.previousContainer.id === 'availableList') {
-          copyArrayItem(
-            event.previousContainer.data,
-            event.container.data,
-            event.previousIndex,
-            event.currentIndex,
-          );
-        } else {
-          transferArrayItem(
-            event.previousContainer.data,
-            event.container.data,
-            event.previousIndex,
-            event.currentIndex,
-          );
-        }
+        transferArrayItem(
+          event.previousContainer.data,
+          event.container.data,
+          event.previousIndex,
+          event.currentIndex,
+        );
       }
     }
     
@@ -336,7 +311,10 @@ export class AppComponent implements OnInit {
     } else if (target === 'value') {
       this.valueFields = this.valueFields.filter(f => f !== field);
     }
-    // We no longer push back to availableGroupingFields because it is a persistent copy list.
+    
+    if (!this.availableGroupingFields.includes(field)) {
+      this.availableGroupingFields.push(field);
+    }
     
     this.rebuildPivotAndColumns();
   }

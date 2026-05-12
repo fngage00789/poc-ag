@@ -32,7 +32,7 @@ export class TabulatorComponent implements OnChanges, AfterViewInit, OnDestroy {
       data: this.data,
       columns: this.columns,
       groupBy: this.groupBy,
-      groupStartOpen: false, // Collapse groups by default
+      groupStartOpen: true, // Expand groups by default
       height: '100%',
       pagination: false, // Disabled pagination for infinite scrolling (virtual DOM)
       movableColumns: true,
