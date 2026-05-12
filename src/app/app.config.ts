@@ -2,9 +2,21 @@ import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeng/themes/aura';
+import { provideRouter, Routes } from '@angular/router';
+import { provideHttpClient } from '@angular/common/http';
+import { PivotComponent } from './pivot/pivot.component';
+import { OcrComponent } from './ocr/ocr.component';
+
+const routes: Routes = [
+  { path: 'pivot', component: PivotComponent },
+  { path: 'ocr', component: OcrComponent },
+  { path: '', redirectTo: '/pivot', pathMatch: 'full' }
+];
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    provideRouter(routes),
+    provideHttpClient(),
     provideBrowserGlobalErrorListeners(),
     provideAnimationsAsync(),
     providePrimeNG({

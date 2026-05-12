@@ -1,125 +1,21 @@
-<div class="layout">
-  <div class="main-content">
-    
-    <div class="header">
-      <div style="display: flex; justify-content: space-between; align-items: center;">
-        <div>
-          <h2>Data Grid Pivot Demo</h2>
-          <p class="subtitle">Interactive drag-and-drop grouping with Angular CDK</p>
-        </div>
-        
-        <!-- Pivot Mode Toggle -->
-        <div class="pivot-toggle-container">
-          <label class="switch">
-            <input type="checkbox" [checked]="isPivotMode" (change)="togglePivotMode()">
-            <span class="slider round"></span>
-          </label>
-          <span class="toggle-label" [class.active]="isPivotMode">Pivot Mode</span>
-        </div>
-      </div>
+<div class="app-layout">
+  <div class="sidebar">
+    <div class="logo">
+      <i class="pi pi-bolt" style="font-size: 1.5rem; color: #4daafc; margin-right: 10px;"></i>
+      <h3>G-able POC</h3>
     </div>
-
-    <!-- Drag & Drop Grouping Panel -->
-    <div class="grouping-container">
-      
-      <!-- Available Fields -->
-      <div class="grouping-box">
-        <label>Available Fields</label>
-        <div class="pill-container"
-             id="availableList"
-             cdkDropList
-             [cdkDropListData]="availableGroupingFields"
-             [cdkDropListConnectedTo]="['groupedList', 'pivotList', 'valueList']"
-             cdkDropListOrientation="horizontal"
-             (cdkDropListDropped)="drop($event)">
-          <div class="row-pill" *ngFor="let field of availableGroupingFields" cdkDrag>
-            <span class="pill-drag-handle">:::</span>
-            {{field}}
-          </div>
-        </div>
-      </div>
-
-      <!-- Active Groups -->
-      <div class="grouping-box active-groups">
-        <label><i class="pi pi-list"></i> Group Rows</label>
-        <div class="pill-container group-drop-zone"
-             id="groupedList"
-             cdkDropList
-             [cdkDropListData]="groupedFields"
-             [cdkDropListConnectedTo]="['pivotList', 'valueList']"
-             cdkDropListOrientation="horizontal"
-             (cdkDropListDropped)="drop($event)">
-             
-          <div class="empty-group" *ngIf="groupedFields.length === 0" style="position: absolute; pointer-events: none;">Drag here...</div>
-          
-          <ng-container *ngFor="let field of groupedFields; let last = last">
-            <div class="row-pill grouped" cdkDrag>
-              <span class="pill-drag-handle">:::</span>
-              {{field}}
-              <span class="pill-close" (click)="removeGroup(field, 'row')">✕</span>
-            </div>
-          </ng-container>
-
-        </div>
-      </div>
-
-      <!-- Pivot Columns -->
-      <div class="grouping-box pivot-groups">
-        <label><i class="pi pi-table"></i> Pivot Columns</label>
-        <div class="pill-container pivot-drop-zone"
-             id="pivotList"
-             cdkDropList
-             [cdkDropListData]="pivotFields"
-             [cdkDropListConnectedTo]="['groupedList', 'valueList']"
-             cdkDropListOrientation="horizontal"
-             (cdkDropListDropped)="drop($event)">
-             
-          <div class="empty-group" *ngIf="pivotFields?.length === 0 || !pivotFields" style="position: absolute; pointer-events: none;">Drag here...</div>
-          
-          <ng-container *ngFor="let field of pivotFields; let last = last">
-            <div class="row-pill pivoted" cdkDrag>
-              <span class="pill-drag-handle">:::</span>
-              {{field}}
-              <span class="pill-close" (click)="removeGroup(field, 'pivot')">✕</span>
-            </div>
-          </ng-container>
-
-        </div>
-      </div>
-
-      <!-- Values (Metrics) -->
-      <div class="grouping-box value-groups">
-        <label><i class="pi pi-calculator"></i> Values</label>
-        <div class="pill-container value-drop-zone"
-             id="valueList"
-             cdkDropList
-             [cdkDropListData]="valueFields"
-             [cdkDropListConnectedTo]="['groupedList', 'pivotList']"
-             cdkDropListOrientation="horizontal"
-             (cdkDropListDropped)="drop($event)">
-             
-          <div class="empty-group" *ngIf="valueFields?.length === 0 || !valueFields" style="position: absolute; pointer-events: none;">Drag here...</div>
-          
-          <ng-container *ngFor="let field of valueFields; let last = last">
-            <div class="row-pill valued" cdkDrag>
-              <span class="pill-drag-handle">:::</span>
-              Σ {{field}}
-              <span class="pill-close" (click)="removeGroup(field, 'value')">✕</span>
-            </div>
-          </ng-container>
-
-        </div>
-      </div>
-    </div>
-
-    <!-- Grid Container -->
-    <div class="grid-container">
-      <app-tabulator 
-        [data]="pivotData" 
-        [columns]="tabulatorColumns" 
-        [groupBy]="groupByField">
-      </app-tabulator>
-    </div>
-
+    <nav class="nav-menu">
+      <a routerLink="/pivot" routerLinkActive="active" class="nav-item">
+        <i class="pi pi-table"></i>
+        <span>Pivot Engine</span>
+      </a>
+      <a routerLink="/ocr" routerLinkActive="active" class="nav-item">
+        <i class="pi pi-camera"></i>
+        <span>Typhoon OCR</span>
+      </a>
+    </nav>
+  </div>
+  <div class="main-content-wrapper">
+    <router-outlet></router-outlet>
   </div>
 </div>

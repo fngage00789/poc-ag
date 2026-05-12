@@ -1,0 +1,51 @@
+<div class="ocr-container">
+  <div class="header">
+    <h2>Typhoon OCR</h2>
+    <p class="subtitle">Extract text and tables from images using opentyphoon.ai</p>
+  </div>
+
+  <div class="main-card">
+    <div class="input-section">
+      <div class="form-group">
+        <label for="apiKey">OpenTyphoon API Key <span class="required">*</span></label>
+        <input type="password" id="apiKey" [(ngModel)]="apiKey" placeholder="sk-..." class="api-input">
+        <small class="help-text">Your key is only used directly from this browser to call the API.</small>
+      </div>
+
+      <div class="form-group">
+        <label for="imageUpload">Upload Document Image</label>
+        <div class="file-upload-wrapper">
+          <input type="file" id="imageUpload" accept="image/jpeg, image/png, image/webp" (change)="onFileSelected($event)" class="file-input">
+        </div>
+      </div>
+
+      <button class="submit-btn" [disabled]="!base64Image || !apiKey || isLoading" (click)="processImage()">
+        <i class="pi pi-spin pi-spinner" *ngIf="isLoading"></i>
+        {{ isLoading ? 'Processing...' : 'Extract Text' }}
+      </button>
+
+      <div class="error-message" *ngIf="errorMessage">
+        <i class="pi pi-exclamation-triangle"></i> {{ errorMessage }}
+      </div>
+    </div>
+
+    <div class="preview-section" *ngIf="imagePreview">
+      <h4>Image Preview</h4>
+      <div class="image-box">
+        <img [src]="imagePreview" alt="Document Preview">
+      </div>
+    </div>
+  </div>
+
+  <div class="result-card" *ngIf="ocrResult">
+    <div class="result-header">
+      <h3>Extracted Text</h3>
+      <button class="copy-btn" (click)="ocrResult && copyToClipboard(ocrResult)">
+        <i class="pi pi-copy"></i>
+      </button>
+    </div>
+    <div class="result-content">
+      <pre>{{ ocrResult }}</pre>
+    </div>
+  </div>
+</div>

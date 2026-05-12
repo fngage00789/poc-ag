@@ -1,0 +1,307 @@
+.layout {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background-color: #121212;
+  color: rgba(255, 255, 255, 0.87);
+}
+
+.main-content {
+  flex: 1;
+  padding: 30px 40px;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.header {
+  margin-bottom: 20px;
+}
+
+.header h2 {
+  margin: 0;
+  color: #fff;
+  font-weight: 600;
+  font-size: 24px;
+}
+
+.subtitle {
+  margin: 5px 0 0 0;
+  color: #aaa;
+  font-size: 14px;
+}
+
+.grouping-container {
+  display: flex;
+  background: #1e1e1e;
+  border-radius: 8px 8px 0 0;
+  border: 1px solid #333;
+  border-bottom: none;
+  overflow: hidden;
+}
+
+.grouping-box {
+  flex: 1;
+  padding: 15px 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.grouping-box.active-groups, .grouping-box.pivot-groups, .grouping-box.value-groups {
+  background: #252526;
+  border-left: 1px solid #333;
+}
+
+.grouping-box label {
+  color: #aaa;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.pill-container {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  background: #181818;
+  border: 1px dashed #444;
+  border-radius: 6px;
+  padding: 8px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.group-drop-zone, .pivot-drop-zone, .value-drop-zone {
+  background: #1e1e1e;
+  border-color: #555;
+}
+
+.row-pill {
+  display: flex;
+  align-items: center;
+  background: #333;
+  border: 1px solid #555;
+  border-radius: 16px;
+  padding: 6px 14px;
+  font-size: 13px;
+  color: #eee;
+  cursor: grab;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  user-select: none;
+}
+
+.row-pill.grouped {
+  background: #0056b3;
+  border-color: #004494;
+  color: #fff;
+}
+
+.row-pill.pivoted {
+  background: #00875a;
+  border-color: #006b46;
+  color: #fff;
+}
+
+.row-pill.valued {
+  background: #b35600;
+  border-color: #944400;
+  color: #fff;
+}
+
+.row-pill:active {
+  cursor: grabbing;
+}
+
+.pill-drag-handle {
+  color: #888;
+  margin-right: 8px;
+  font-size: 14px;
+}
+
+.row-pill.grouped .pill-drag-handle {
+  color: #8bb9e8;
+}
+
+.row-pill.pivoted .pill-drag-handle {
+  color: #79dca6;
+}
+
+.row-pill.valued .pill-drag-handle {
+  color: #e8b98b;
+}
+
+.pill-close {
+  margin-left: 8px;
+  color: #aaa;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.pill-close:hover {
+  color: #ff6b6b;
+}
+
+.separator-icon {
+  color: #666;
+  font-size: 12px;
+}
+
+.empty-group {
+  color: #777;
+  font-size: 13px;
+  font-style: italic;
+  padding: 0 10px;
+}
+
+/* CDK Drag Drop styling */
+.cdk-drag-preview {
+  box-sizing: border-box;
+  border-radius: 16px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+  background: #444;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  padding: 6px 14px;
+  font-size: 13px;
+  border: 1px solid #666;
+}
+
+.cdk-drag-placeholder {
+  opacity: 0.3;
+}
+
+.cdk-drag-animating {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.pill-container.cdk-drop-list-dragging .row-pill:not(.cdk-drag-placeholder) {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.grid-container {
+  flex: 1;
+  background: #1e1e1e;
+  border: 1px solid #333;
+  border-radius: 0 0 8px 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* Make sure the tabulator component takes full height */
+app-tabulator {
+  display: block;
+  height: 100%;
+}
+
+/* Custom Tabulator CSS overrides for midnight theme */
+::ng-deep .tabulator {
+  border: none !important;
+  background-color: #1e1e1e !important;
+}
+
+::ng-deep .tabulator-header {
+  background-color: #252526 !important;
+  border-bottom: 1px solid #333 !important;
+}
+
+::ng-deep .tabulator-row {
+  background-color: #1e1e1e !important;
+  border-bottom: 1px solid #333 !important;
+}
+
+::ng-deep .tabulator-row.tabulator-row-even {
+  background-color: #222222 !important;
+}
+
+::ng-deep .tabulator-row:hover {
+  background-color: #2c2d30 !important;
+}
+
+::ng-deep .tabulator-row.tabulator-group {
+  background-color: #2a2a2a !important;
+  border-bottom: 1px solid #444 !important;
+  color: #4daafc !important;
+  font-weight: bold;
+}
+
+/* Toggle Switch */
+.pivot-toggle-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #1e1e1e;
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: 1px solid #333;
+}
+
+.toggle-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #777;
+  transition: color 0.3s;
+}
+
+.toggle-label.active {
+  color: #4daafc;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #444;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #0056b3;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #0056b3;
+}
+
+input:checked + .slider:before {
+  transform: translateX(20px);
+}
+
+.slider.round {
+  border-radius: 24px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}

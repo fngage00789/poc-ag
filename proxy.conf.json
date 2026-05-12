@@ -1,0 +1,10 @@
+{
+  "/typhoon-api": {
+    "target": "https://api.opentyphoon.ai",
+    "secure": true,
+    "changeOrigin": true,
+    "pathRewrite": {
+      "^/typhoon-api": ""
+    }
+  }
+}
