@@ -1,0 +1,164 @@
+<div class="ocr-container">
+  <div class="header">
+    <div class="header-top">
+      <div class="title-area">
+        <h2>
+          <span class="google-icon">
+            <svg viewBox="0 0 24 24" width="28" height="28">
+              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/>
+              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+            </svg>
+          </span>
+          Google Vision OCR
+        </h2>
+        <p class="subtitle">Extract text from images using Google Cloud Vision API — supports 100+ languages</p>
+      </div>
+      <button class="clear-btn" *ngIf="imagePreview || ocrResult" (click)="clearAll()">
+        <i class="pi pi-refresh"></i> Reset
+      </button>
+    </div>
+  </div>
+
+  <!-- Success Toast -->
+  <div class="success-toast" *ngIf="successMessage" [class.visible]="successMessage">
+    <i class="pi pi-check-circle"></i>
+    {{ successMessage }}
+  </div>
+
+  <div class="main-card">
+    <div class="input-section">
+      <!-- API Key -->
+      <div class="form-group">
+        <label for="gvApiKey">Google Cloud API Key <span class="required">*</span></label>
+        <div class="input-with-icon">
+          <i class="pi pi-key input-icon"></i>
+          <input type="password" id="gvApiKey" [(ngModel)]="apiKey" placeholder="AIzaSy..." class="api-input">
+        </div>
+        <small class="help-text">
+          <i class="pi pi-info-circle"></i>
+          Enable the Vision API in your <a href="https://console.cloud.google.com/apis/library/vision.googleapis.com" target="_blank" class="help-link">Google Cloud Console</a>.
+        </small>
+      </div>
+
+      <!-- Detection Mode -->
+      <div class="form-group">
+        <label>Detection Mode</label>
+        <div class="mode-toggle">
+          <button class="mode-btn" [class.active]="detectionMode === 'DOCUMENT_TEXT_DETECTION'"
+                  (click)="detectionMode = 'DOCUMENT_TEXT_DETECTION'">
+            <i class="pi pi-file"></i> Document OCR
+          </button>
+          <button class="mode-btn" [class.active]="detectionMode === 'TEXT_DETECTION'"
+                  (click)="detectionMode = 'TEXT_DETECTION'">
+            <i class="pi pi-image"></i> General Text
+          </button>
+        </div>
+        <small class="help-text">
+          <i class="pi pi-info-circle"></i>
+          {{ detectionMode === 'DOCUMENT_TEXT_DETECTION'
+            ? 'Optimized for dense text & documents. Returns full structure with confidence.'
+            : 'Best for photos, signs, and sparse text in natural scenes.' }}
+        </small>
+      </div>
+
+      <!-- Language Hints -->
+      <div class="form-group">
+        <label for="langHints">Language Hints</label>
+        <div class="input-with-icon">
+          <i class="pi pi-globe input-icon"></i>
+          <input type="text" id="langHints" [(ngModel)]="languageHints" placeholder="th,en,ja" class="api-input">
+        </div>
+        <small class="help-text">
+          <i class="pi pi-info-circle"></i>
+          Comma-separated BCP-47 codes (e.g., th, en, ja, zh). Helps improve accuracy.
+        </small>
+      </div>
+
+      <!-- File Upload with Drag & Drop -->
+      <div class="form-group">
+        <label for="gvImageUpload">Upload Document Image</label>
+        <div class="file-upload-wrapper"
+             [class.dragging]="isDragging"
+             (dragover)="onDragOver($event)"
+             (dragleave)="onDragLeave($event)"
+             (drop)="onDrop($event)">
+          <div class="upload-content" *ngIf="!selectedFileName">
+            <i class="pi pi-cloud-upload upload-icon"></i>
+            <p class="upload-text">Drag & drop an image here or click to browse</p>
+            <p class="upload-formats">JPEG, PNG, WebP, GIF, BMP, TIFF — Max 20MB</p>
+          </div>
+          <div class="upload-content selected" *ngIf="selectedFileName">
+            <i class="pi pi-image upload-icon-small"></i>
+            <p class="upload-text">{{ selectedFileName }}</p>
+          </div>
+          <input type="file" id="gvImageUpload"
+                 accept="image/jpeg,image/png,image/webp,image/gif,image/bmp,image/tiff"
+                 (change)="onFileSelected($event)" class="file-input">
+        </div>
+      </div>
+
+      <!-- Submit Button -->
+      <button class="submit-btn" [disabled]="!base64Image || !apiKey || isLoading" (click)="processImage()">
+        <i class="pi pi-spin pi-spinner" *ngIf="isLoading"></i>
+        <i class="pi pi-eye" *ngIf="!isLoading"></i>
+        {{ isLoading ? 'Analyzing image...' : 'Extract Text' }}
+      </button>
+
+      <!-- Error -->
+      <div class="error-message" *ngIf="errorMessage">
+        <i class="pi pi-exclamation-triangle"></i> {{ errorMessage }}
+      </div>
+    </div>
+
+    <!-- Image Preview -->
+    <div class="preview-section" *ngIf="imagePreview">
+      <h4>Image Preview</h4>
+      <div class="image-box">
+        <img [src]="imagePreview" alt="Document Preview">
+      </div>
+    </div>
+  </div>
+
+  <!-- Results Section -->
+  <div class="result-card" *ngIf="ocrResult">
+    <!-- Stats Bar -->
+    <div class="stats-bar" *ngIf="wordCount > 0 || confidenceScore !== null || detectedLanguages.length > 0">
+      <div class="stat-chip" *ngIf="wordCount > 0">
+        <i class="pi pi-align-left"></i>
+        <span>{{ wordCount }} words</span>
+      </div>
+      <div class="stat-chip" *ngIf="pageCount > 0">
+        <i class="pi pi-file"></i>
+        <span>{{ pageCount }} {{ pageCount === 1 ? 'page' : 'pages' }}</span>
+      </div>
+      <div class="stat-chip confidence" *ngIf="confidenceScore !== null"
+           [class.high]="confidenceScore >= 90"
+           [class.medium]="confidenceScore >= 70 && confidenceScore < 90"
+           [class.low]="confidenceScore < 70">
+        <i class="pi pi-chart-bar"></i>
+        <span>{{ confidenceScore }}% confidence</span>
+      </div>
+      <div class="stat-chip lang" *ngFor="let lang of detectedLanguages">
+        <i class="pi pi-globe"></i>
+        <span>{{ lang }}</span>
+      </div>
+    </div>
+
+    <div class="result-header">
+      <h3>Extracted Text</h3>
+      <div class="result-actions">
+        <button class="action-btn" (click)="downloadResult()" title="Download as text file">
+          <i class="pi pi-download"></i>
+        </button>
+        <button class="action-btn" (click)="ocrResult && copyToClipboard(ocrResult)" title="Copy to clipboard">
+          <i class="pi pi-copy"></i>
+        </button>
+      </div>
+    </div>
+    <div class="result-content">
+      <pre>{{ ocrResult }}</pre>
+    </div>
+  </div>
+</div>
