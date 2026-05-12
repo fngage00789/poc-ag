@@ -1,0 +1,9 @@
+@import "primeicons/primeicons.css";
+@import "tabulator-tables/dist/css/tabulator_midnight.min.css";
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #121212;
+  color: rgba(255, 255, 255, 0.87);
+}
