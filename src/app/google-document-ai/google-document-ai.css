@@ -619,3 +619,111 @@
   color: #666;
   font-size: 14px;
 }
+
+/* ════════════════════════════════════════════
+   MOBILE RESPONSIVE
+   ════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .ocr-container {
+    padding: 8px;
+  }
+
+  .header-top {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .title-area h2 {
+    font-size: 20px;
+  }
+
+  .subtitle {
+    font-size: 13px;
+  }
+
+  .main-card {
+    padding: 16px;
+  }
+
+  .form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .file-upload-wrapper {
+    padding: 24px 16px;
+  }
+
+  .submit-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .result-content pre {
+    padding: 14px;
+    font-size: 13px;
+  }
+
+  .stats-bar {
+    padding: 10px 14px;
+    gap: 6px;
+  }
+
+  .result-header {
+    padding: 10px 14px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .result-header h3 {
+    font-size: 14px;
+  }
+
+  .result-tabs {
+    overflow-x: auto;
+  }
+
+  .result-tab {
+    padding: 10px 14px;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+
+  .entities-table th,
+  .entities-table td {
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .title-area h2 {
+    font-size: 18px;
+  }
+
+  .form-group label {
+    font-size: 12px;
+  }
+
+  .api-input,
+  .api-input-plain {
+    font-size: 13px;
+    padding: 9px 10px 9px 32px;
+  }
+
+  .api-input-plain {
+    padding: 9px 10px;
+  }
+
+  .select-input {
+    font-size: 13px;
+    padding: 9px 10px;
+  }
+
+  .entities-table th,
+  .entities-table td {
+    padding: 6px 8px;
+    font-size: 11px;
+  }
+}
+

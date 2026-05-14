@@ -18,7 +18,7 @@ interface DocumentEntity {
 export class GoogleDocumentAi {
   accessToken: string = '';
   projectId: string = '';
-  location: string = 'us';
+  location: string = 'asia-southeast1';
   processorId: string = '';
 
   imagePreview: string | null = null;
@@ -42,10 +42,16 @@ export class GoogleDocumentAi {
   // Tabs
   activeTab: 'text' | 'entities' = 'text';
 
-  // Location options
+  // Location options (all available Document AI regions)
   locations = [
-    { value: 'us', label: 'United States (us)' },
-    { value: 'eu', label: 'Europe (eu)' },
+    { value: 'asia-southeast1', label: 'Asia Pacific — Singapore (asia-southeast1)' },
+    { value: 'asia-south1', label: 'Asia Pacific — Mumbai (asia-south1)' },
+    { value: 'australia-southeast1', label: 'Australia — Sydney (australia-southeast1)' },
+    { value: 'us', label: 'United States — Multi-region (us)' },
+    { value: 'eu', label: 'Europe — Multi-region (eu)' },
+    { value: 'europe-west2', label: 'Europe — London (europe-west2)' },
+    { value: 'europe-west3', label: 'Europe — Frankfurt (europe-west3)' },
+    { value: 'northamerica-northeast1', label: 'Canada — Montréal (northamerica-northeast1)' },
   ];
 
   constructor(private cdr: ChangeDetectorRef) {}

@@ -223,3 +223,63 @@
   white-space: pre-wrap;
   word-wrap: break-word;
 }
+
+/* ════════════════════════════════════════════
+   MOBILE RESPONSIVE
+   ════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .ocr-container {
+    padding: 8px;
+  }
+
+  .header h2 {
+    font-size: 20px;
+  }
+
+  .subtitle {
+    font-size: 13px;
+  }
+
+  .main-card {
+    padding: 16px;
+  }
+
+  .file-upload-wrapper {
+    padding: 16px;
+  }
+
+  .submit-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .result-content pre {
+    padding: 14px;
+    font-size: 13px;
+  }
+
+  .result-header {
+    padding: 10px 14px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .result-header h3 {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .header h2 {
+    font-size: 18px;
+  }
+
+  .form-group label {
+    font-size: 12px;
+  }
+
+  .api-input {
+    font-size: 13px;
+  }
+}
+

@@ -1,31 +1,46 @@
-<div class="app-layout">
+<div class="app-layout" [class.sidebar-open]="sidebarOpen">
+  <!-- Mobile Header -->
+  <div class="mobile-header">
+    <button class="hamburger-btn" (click)="toggleSidebar()" aria-label="Toggle navigation">
+      <i class="pi" [ngClass]="sidebarOpen ? 'pi-times' : 'pi-bars'"></i>
+    </button>
+    <div class="mobile-logo">
+      <i class="pi pi-bolt" style="font-size: 1.2rem; color: #4daafc; margin-right: 8px;"></i>
+      <h3>G-able POC</h3>
+    </div>
+    <div class="mobile-spacer"></div>
+  </div>
+
+  <!-- Sidebar Overlay (mobile only) -->
+  <div class="sidebar-overlay" *ngIf="sidebarOpen" (click)="closeSidebar()"></div>
+
   <div class="sidebar">
     <div class="logo">
       <i class="pi pi-bolt" style="font-size: 1.5rem; color: #4daafc; margin-right: 10px;"></i>
       <h3>G-able POC</h3>
     </div>
     <nav class="nav-menu">
-      <a routerLink="/pivot" routerLinkActive="active" class="nav-item">
+      <a routerLink="/pivot" routerLinkActive="active" class="nav-item" (click)="closeSidebar()">
         <i class="pi pi-table"></i>
         <span>Pivot Engine</span>
       </a>
-      <a routerLink="/ocr" routerLinkActive="active" class="nav-item">
+      <a routerLink="/ocr" routerLinkActive="active" class="nav-item" (click)="closeSidebar()">
         <i class="pi pi-camera"></i>
         <span>Typhoon OCR</span>
       </a>
-      <a routerLink="/tesseract-ocr" routerLinkActive="active" class="nav-item">
+      <a routerLink="/tesseract-ocr" routerLinkActive="active" class="nav-item" (click)="closeSidebar()">
         <i class="pi pi-search"></i>
         <span>Tesseract OCR</span>
       </a>
-      <a routerLink="/google-vision-ocr" routerLinkActive="active" class="nav-item">
+      <a routerLink="/google-vision-ocr" routerLinkActive="active" class="nav-item" (click)="closeSidebar()">
         <i class="pi pi-eye"></i>
         <span>Google Vision OCR</span>
       </a>
-      <a routerLink="/google-document-ai" routerLinkActive="active" class="nav-item">
+      <a routerLink="/google-document-ai" routerLinkActive="active" class="nav-item" (click)="closeSidebar()">
         <i class="pi pi-file-check"></i>
         <span>Document AI</span>
       </a>
-      <a routerLink="/aws-textract-ocr" routerLinkActive="active" class="nav-item">
+      <a routerLink="/aws-textract-ocr" routerLinkActive="active" class="nav-item" (click)="closeSidebar()">
         <i class="pi pi-amazon"></i>
         <span>AWS Textract</span>
       </a>

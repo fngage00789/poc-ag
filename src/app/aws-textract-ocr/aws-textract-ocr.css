@@ -611,3 +611,105 @@
   font-size: 13px;
   flex: 1;
 }
+
+/* ════════════════════════════════════════════
+   MOBILE RESPONSIVE
+   ════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .ocr-container {
+    padding: 8px;
+  }
+
+  .header-top {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .title-area h2 {
+    font-size: 20px;
+  }
+
+  .subtitle {
+    font-size: 13px;
+  }
+
+  .main-card {
+    padding: 16px;
+  }
+
+  .file-upload-wrapper {
+    padding: 24px 16px;
+  }
+
+  .submit-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .result-content pre {
+    padding: 14px;
+    font-size: 13px;
+  }
+
+  .stats-bar {
+    padding: 10px 14px;
+    gap: 6px;
+  }
+
+  .result-header {
+    padding: 10px 14px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .result-header h3 {
+    font-size: 14px;
+  }
+
+  .table-content {
+    padding: 8px;
+  }
+
+  .kv-row {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .kv-key {
+    min-width: unset;
+  }
+
+  .kv-separator {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .title-area h2 {
+    font-size: 18px;
+  }
+
+  .form-group label {
+    font-size: 12px;
+  }
+
+  .api-input {
+    font-size: 13px;
+    padding: 9px 10px 9px 32px;
+  }
+
+  .mode-btn {
+    padding: 9px 10px;
+    font-size: 12px;
+  }
+
+  .tab-btn {
+    padding: 10px 8px;
+    font-size: 12px;
+  }
+
+  .extracted-table td {
+    padding: 6px 8px;
+    font-size: 12px;
+  }
+}
