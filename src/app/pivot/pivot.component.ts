@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CdkDragDrop, DragDropModule, moveItemInArray, transferArrayItem, copyArrayItem } from '@angular/cdk/drag-drop';
@@ -21,6 +21,9 @@ export class PivotComponent implements OnInit {
   savedLayouts: any[] = [];
   isSaving: boolean = false;
   isLoadingLayouts: boolean = false;
+
+  // Export
+  showExportMenu: boolean = false;
 
   constructor(private supabase: SupabaseService, private cdr: ChangeDetectorRef) {}
 
@@ -389,4 +392,74 @@ export class PivotComponent implements OnInit {
     
     this.rebuildPivotAndColumns();
   }
+
+  // ── Export Methods ──
+
+  toggleExportMenu(event?: MouseEvent) {
+    if (event) event.stopPropagation();
+    this.showExportMenu = !this.showExportMenu;
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    const target = event.target as HTMLElement;
+    if (this.showExportMenu && !target.closest('.export-dropdown-wrapper')) {
+      this.showExportMenu = false;
+    }
+  }
+
+  exportCSV() {
+    const data = this.pivotData;
+    if (!data || data.length === 0) return;
+    const headers = Object.keys(data[0]).filter(k => k !== 'id');
+    const csvRows = [
+      headers.join(','),
+      ...data.map(row => headers.map(h => {
+        const val = row[h];
+        return typeof val === 'string' ? `"${val.replace(/"/g, '""')}"` : (val ?? '');
+      }).join(','))
+    ];
+    this.downloadFile(csvRows.join('\n'), 'pivot-export.csv', 'text/csv');
+    this.showExportMenu = false;
+  }
+
+  exportXLSX() {
+    // For a POC, export as CSV with .xlsx hint (real XLSX would need SheetJS)
+    this.exportCSV();
+  }
+
+  exportPDF() {
+    // Trigger browser print as PDF
+    window.print();
+    this.showExportMenu = false;
+  }
+
+  exportPNG() {
+    // Capture the grid area as a canvas screenshot
+    const gridEl = document.querySelector('.grid-container') as HTMLElement;
+    if (!gridEl) return;
+    import('html2canvas' as any).then((mod: any) => {
+      const html2canvas = mod.default;
+      html2canvas(gridEl, { backgroundColor: '#1e1e1e' }).then((canvas: any) => {
+        const link = document.createElement('a');
+        link.download = `pivot-export-${new Date().toISOString().slice(0, 10)}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      });
+    }).catch(() => {
+      alert('PNG export requires html2canvas. Install with: npm i html2canvas');
+    });
+    this.showExportMenu = false;
+  }
+
+  private downloadFile(content: string, filename: string, mimeType: string) {
+    const blob = new Blob([content], { type: mimeType + ';charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
 }

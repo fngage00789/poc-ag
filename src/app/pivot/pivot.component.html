@@ -2,22 +2,48 @@
   <div class="main-content">
     
     <div class="header">
-      <div style="display: flex; justify-content: space-between; align-items: center;">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
         <div>
           <h2>Data Grid Pivot Demo</h2>
           <p class="subtitle">Interactive drag-and-drop grouping with Angular CDK</p>
         </div>
         
-        <!-- Pivot Mode Toggle -->
-        <div class="pivot-toggle-container">
-          <label class="switch">
-            <input type="checkbox" [checked]="isPivotMode" (change)="togglePivotMode()">
-            <span class="slider round"></span>
-          </label>
-          <span class="toggle-label" [class.active]="isPivotMode">Pivot Mode</span>
+        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+          <!-- Export Dropdown -->
+          <div class="export-dropdown-wrapper">
+            <button class="export-btn" (click)="toggleExportMenu($event)">
+              <i class="pi pi-download"></i>
+              <span>Export</span>
+              <i class="pi pi-chevron-down" style="font-size: 10px; margin-left: 4px;"></i>
+            </button>
+            <div class="export-menu" *ngIf="showExportMenu">
+              <button class="export-menu-item" (click)="exportCSV()">
+                <i class="pi pi-file"></i> CSV
+              </button>
+              <button class="export-menu-item" (click)="exportXLSX()">
+                <i class="pi pi-file-excel"></i> XLSX
+              </button>
+              <button class="export-menu-item" (click)="exportPDF()">
+                <i class="pi pi-file-pdf"></i> PDF
+              </button>
+              <button class="export-menu-item" (click)="exportPNG()">
+                <i class="pi pi-image"></i> PNG
+              </button>
+            </div>
+          </div>
+
+          <!-- Pivot Mode Toggle -->
+          <div class="pivot-toggle-container">
+            <label class="switch">
+              <input type="checkbox" [checked]="isPivotMode" (change)="togglePivotMode()">
+              <span class="slider round"></span>
+            </label>
+            <span class="toggle-label" [class.active]="isPivotMode">Pivot Mode</span>
+          </div>
         </div>
       </div>
     </div>
+
     <!-- Layout Manager Toolbar -->
     <div class="layout-toolbar">
       <div class="layout-save">
@@ -36,9 +62,9 @@
         <span *ngIf="isLoadingLayouts" class="loading-spinner"><i class="pi pi-spin pi-spinner"></i></span>
       </div>
     </div>
+
     <!-- Drag & Drop Grouping Panel -->
     <div class="grouping-container">
-      
       <!-- Available Fields -->
       <div class="grouping-box">
         <label>Available Fields</label>

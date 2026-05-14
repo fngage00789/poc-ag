@@ -1,0 +1,239 @@
+<div class="ocr-container">
+  <div class="header">
+    <div class="header-top">
+      <div class="title-area">
+        <h2>
+          <span class="aws-icon">
+            <svg viewBox="0 0 80 80" width="28" height="28">
+              <path fill="#FF9900" d="M40 0C17.9 0 0 17.9 0 40s17.9 40 40 40 40-17.9 40-40S62.1 0 40 0z" />
+              <path fill="#252F3E" d="M24 32h6v16h-6zm8-4h6v24h-6zm8-4h6v32h-6zm8 8h6v20h-6z" />
+              <path fill="#FF9900" d="M22 52c0 0 8 6 18 6s18-6 18-6" stroke="#FF9900" stroke-width="3" fill="none"
+                stroke-linecap="round" />
+            </svg>
+          </span>
+          AWS Textract OCR
+        </h2>
+        <p class="subtitle">Extract text, tables & forms from documents using Amazon Textract — AWS native,
+          production-ready</p>
+      </div>
+      <button class="clear-btn" *ngIf="imagePreview || ocrResult" (click)="clearAll()">
+        <i class="pi pi-refresh"></i> Reset
+      </button>
+    </div>
+  </div>
+
+  <!-- Success Toast -->
+  <div class="success-toast" *ngIf="successMessage">
+    <i class="pi pi-check-circle"></i>
+    {{ successMessage }}
+  </div>
+
+  <div class="main-card">
+    <div class="input-section">
+      <!-- AWS Access Key ID -->
+      <div class="form-group">
+        <label for="awsAccessKey">AWS Access Key ID <span class="required">*</span></label>
+        <div class="input-with-icon">
+          <i class="pi pi-key input-icon"></i>
+          <input type="password" id="awsAccessKey" [(ngModel)]="accessKeyId" placeholder="AKIA..." class="api-input">
+        </div>
+      </div>
+
+      <!-- AWS Secret Access Key -->
+      <div class="form-group">
+        <label for="awsSecretKey">AWS Secret Access Key <span class="required">*</span></label>
+        <div class="input-with-icon">
+          <i class="pi pi-lock input-icon"></i>
+          <input type="password" id="awsSecretKey" [(ngModel)]="secretAccessKey" placeholder="wJalr..."
+            class="api-input">
+        </div>
+        <small class="help-text">
+          <i class="pi pi-info-circle"></i>
+          IAM user needs <code>textract:DetectDocumentText</code> and <code>textract:AnalyzeDocument</code> permissions.
+        </small>
+      </div>
+
+      <!-- AWS Region -->
+      <div class="form-group">
+        <label for="awsRegion">AWS Region</label>
+        <div class="input-with-icon">
+          <i class="pi pi-globe input-icon"></i>
+          <select id="awsRegion" [(ngModel)]="region" class="api-input select-input">
+            <option *ngFor="let r of regions" [value]="r.value">{{ r.label }} ({{ r.value }})</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Analysis Mode -->
+      <div class="form-group">
+        <label>Analysis Mode</label>
+        <div class="mode-toggle">
+          <button class="mode-btn" [class.active]="analysisMode === 'text'" (click)="analysisMode = 'text'">
+            <i class="pi pi-align-left"></i> Text Only
+          </button>
+          <button class="mode-btn" [class.active]="analysisMode === 'document'" (click)="analysisMode = 'document'">
+            <i class="pi pi-th-large"></i> Tables & Forms
+          </button>
+        </div>
+        <small class="help-text">
+          <i class="pi pi-info-circle"></i>
+          {{ analysisMode === 'text'
+          ? 'DetectDocumentText — fast text extraction, lower cost.'
+          : 'AnalyzeDocument — extracts text + tables + key-value pairs from forms.' }}
+        </small>
+      </div>
+
+      <!-- File Upload -->
+      <div class="form-group">
+        <label for="awsImageUpload">Upload Document</label>
+        <div class="file-upload-wrapper" [class.dragging]="isDragging" (dragover)="onDragOver($event)"
+          (dragleave)="onDragLeave($event)" (drop)="onDrop($event)">
+          <div class="upload-content" *ngIf="!selectedFileName">
+            <i class="pi pi-cloud-upload upload-icon"></i>
+            <p class="upload-text">Drag & drop an image here or click to browse</p>
+            <p class="upload-formats">JPEG, PNG, PDF — Max 5 MB (synchronous)</p>
+          </div>
+          <div class="upload-content selected" *ngIf="selectedFileName">
+            <i class="pi pi-image upload-icon-small"></i>
+            <p class="upload-text">{{ selectedFileName }}</p>
+          </div>
+          <input type="file" id="awsImageUpload" accept="image/jpeg,image/png,application/pdf"
+            (change)="onFileSelected($event)" class="file-input">
+        </div>
+      </div>
+
+      <!-- Submit -->
+      <button class="submit-btn" [disabled]="!base64Bytes || !accessKeyId || !secretAccessKey || isLoading"
+        (click)="processImage()">
+        <i class="pi pi-spin pi-spinner" *ngIf="isLoading"></i>
+        <i class="pi pi-eye" *ngIf="!isLoading"></i>
+        {{ isLoading ? 'Analyzing with Textract...' : 'Extract Text' }}
+      </button>
+
+      <!-- Error -->
+      <div class="error-message" *ngIf="errorMessage">
+        <i class="pi pi-exclamation-triangle"></i> {{ errorMessage }}
+      </div>
+    </div>
+
+    <!-- Image Preview -->
+    <div class="preview-section" *ngIf="imagePreview">
+      <h4>Document Preview</h4>
+      <div class="image-box">
+        <img [src]="imagePreview" alt="Document Preview">
+      </div>
+    </div>
+  </div>
+
+  <!-- Results Section -->
+  <div class="result-card" *ngIf="ocrResult || tables.length > 0 || keyValuePairs.length > 0">
+    <!-- Stats Bar -->
+    <div class="stats-bar">
+      <div class="stat-chip" *ngIf="wordCount > 0">
+        <i class="pi pi-align-left"></i>
+        <span>{{ wordCount }} words</span>
+      </div>
+      <div class="stat-chip" *ngIf="lineCount > 0">
+        <i class="pi pi-list"></i>
+        <span>{{ lineCount }} lines</span>
+      </div>
+      <div class="stat-chip" *ngIf="blockCount > 0">
+        <i class="pi pi-th-large"></i>
+        <span>{{ blockCount }} blocks</span>
+      </div>
+      <div class="stat-chip confidence" *ngIf="confidence !== null" [class.high]="confidence >= 90"
+        [class.medium]="confidence >= 70 && confidence < 90" [class.low]="confidence < 70">
+        <i class="pi pi-chart-bar"></i>
+        <span>{{ confidence }}% avg confidence</span>
+      </div>
+      <div class="stat-chip tables-chip" *ngIf="tables.length > 0">
+        <i class="pi pi-table"></i>
+        <span>Tables detected</span>
+      </div>
+      <div class="stat-chip forms-chip" *ngIf="keyValuePairs.length > 0">
+        <i class="pi pi-list"></i>
+        <span>{{ keyValuePairs.length }} form fields</span>
+      </div>
+    </div>
+
+    <!-- Result Tabs -->
+    <div class="result-tabs" *ngIf="analysisMode === 'document'">
+      <button class="tab-btn" [class.active]="activeResultTab === 'text'" (click)="activeResultTab = 'text'">
+        <i class="pi pi-file-edit"></i> Text
+      </button>
+      <button class="tab-btn" [class.active]="activeResultTab === 'tables'" (click)="activeResultTab = 'tables'"
+        [disabled]="tables.length === 0">
+        <i class="pi pi-table"></i> Tables
+      </button>
+      <button class="tab-btn" [class.active]="activeResultTab === 'keyvalue'" (click)="activeResultTab = 'keyvalue'"
+        [disabled]="keyValuePairs.length === 0">
+        <i class="pi pi-list"></i> Form Fields
+      </button>
+    </div>
+
+    <!-- Text Result -->
+    <div *ngIf="activeResultTab === 'text' && ocrResult">
+      <div class="result-header">
+        <h3>Extracted Text</h3>
+        <div class="result-actions">
+          <button class="action-btn" (click)="downloadResult()" title="Download as text file">
+            <i class="pi pi-download"></i>
+          </button>
+          <button class="action-btn" (click)="copyToClipboard(ocrResult)" title="Copy to clipboard">
+            <i class="pi pi-copy"></i>
+          </button>
+        </div>
+      </div>
+      <div class="result-content">
+        <pre>{{ ocrResult }}</pre>
+      </div>
+    </div>
+
+    <!-- Table Result -->
+    <div *ngIf="activeResultTab === 'tables' && tables.length > 0">
+      <div class="result-header">
+        <h3>Extracted Tables</h3>
+        <div class="result-actions">
+          <button class="action-btn" (click)="downloadTableCSV()" title="Download as CSV">
+            <i class="pi pi-download"></i>
+          </button>
+          <button class="action-btn" (click)="copyTableAsCSV()" title="Copy as CSV">
+            <i class="pi pi-copy"></i>
+          </button>
+        </div>
+      </div>
+      <div class="result-content table-content">
+        <div class="table-wrapper">
+          <table class="extracted-table">
+            <tr *ngFor="let row of tables; let i = index" [class.header-row]="i === 0">
+              <td *ngFor="let cell of row">{{ cell }}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Key-Value Pairs Result -->
+    <div *ngIf="activeResultTab === 'keyvalue' && keyValuePairs.length > 0">
+      <div class="result-header">
+        <h3>Form Fields (Key-Value Pairs)</h3>
+        <div class="result-actions">
+          <button class="action-btn"
+            (click)="copyToClipboard(keyValuePairs.map(kv => kv.key + ': ' + kv.value).join('\n'))"
+            title="Copy to clipboard">
+            <i class="pi pi-copy"></i>
+          </button>
+        </div>
+      </div>
+      <div class="result-content kv-content">
+        <div class="kv-grid">
+          <div class="kv-row" *ngFor="let kv of keyValuePairs">
+            <span class="kv-key">{{ kv.key }}</span>
+            <span class="kv-separator">→</span>
+            <span class="kv-value">{{ kv.value || '—' }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
