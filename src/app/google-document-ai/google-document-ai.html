@@ -1,0 +1,218 @@
+<div class="ocr-container">
+  <div class="header">
+    <div class="header-top">
+      <div class="title-area">
+        <h2>
+          <span class="docai-icon">
+            <i class="pi pi-file-check"></i>
+          </span>
+          Google Document AI
+        </h2>
+        <p class="subtitle">Structured document processing — extract text, tables & entities with pre-trained AI models</p>
+      </div>
+      <button class="clear-btn" *ngIf="imagePreview || ocrResult" (click)="clearAll()">
+        <i class="pi pi-refresh"></i> Reset
+      </button>
+    </div>
+  </div>
+
+  <!-- Success Toast -->
+  <div class="success-toast" *ngIf="successMessage" [class.visible]="successMessage">
+    <i class="pi pi-check-circle"></i>
+    {{ successMessage }}
+  </div>
+
+  <div class="main-card">
+    <div class="input-section">
+      <!-- Access Token -->
+      <div class="form-group">
+        <label for="daiAccessToken">Access Token <span class="required">*</span></label>
+        <div class="input-with-icon">
+          <i class="pi pi-lock input-icon"></i>
+          <input type="password" id="daiAccessToken" [(ngModel)]="accessToken" placeholder="ya29.a0..." class="api-input">
+        </div>
+        <small class="help-text">
+          <i class="pi pi-info-circle"></i>
+          Generate via <code style="color:#ce93d8;">gcloud auth print-access-token</code> or
+          <a href="https://cloud.google.com/docs/authentication/token-types#access" target="_blank" class="help-link">OAuth 2.0</a>.
+        </small>
+      </div>
+
+      <!-- Project ID & Location Row -->
+      <div class="form-row">
+        <div class="form-group">
+          <label for="daiProjectId">Project ID <span class="required">*</span></label>
+          <input type="text" id="daiProjectId" [(ngModel)]="projectId" placeholder="my-gcp-project" class="api-input-plain">
+        </div>
+        <div class="form-group">
+          <label for="daiLocation">Location</label>
+          <select id="daiLocation" [(ngModel)]="location" class="select-input">
+            <option *ngFor="let loc of locations" [value]="loc.value">{{ loc.label }}</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Processor ID -->
+      <div class="form-group">
+        <label for="daiProcessorId">Processor ID <span class="required">*</span></label>
+        <div class="input-with-icon">
+          <i class="pi pi-microchip input-icon"></i>
+          <input type="text" id="daiProcessorId" [(ngModel)]="processorId" placeholder="abc123def456" class="api-input">
+        </div>
+        <small class="help-text">
+          <i class="pi pi-info-circle"></i>
+          Create a processor in the
+          <a href="https://console.cloud.google.com/ai/document-ai/processors" target="_blank" class="help-link">Document AI Console</a>.
+        </small>
+      </div>
+
+      <!-- File Upload with Drag & Drop -->
+      <div class="form-group">
+        <label for="daiImageUpload">Upload Document</label>
+        <div class="file-upload-wrapper"
+             [class.dragging]="isDragging"
+             (dragover)="onDragOver($event)"
+             (dragleave)="onDragLeave($event)"
+             (drop)="onDrop($event)">
+          <div class="upload-content" *ngIf="!selectedFileName">
+            <i class="pi pi-cloud-upload upload-icon"></i>
+            <p class="upload-text">Drag & drop a document here or click to browse</p>
+            <p class="upload-formats">JPEG, PNG, WebP, TIFF, PDF — Max 20MB</p>
+          </div>
+          <div class="upload-content selected" *ngIf="selectedFileName">
+            <i class="pi pi-image upload-icon-small"></i>
+            <p class="upload-text">{{ selectedFileName }}</p>
+          </div>
+          <input type="file" id="daiImageUpload"
+                 accept="image/jpeg,image/png,image/webp,image/tiff,application/pdf"
+                 (change)="onFileSelected($event)" class="file-input">
+        </div>
+      </div>
+
+      <!-- Submit Button -->
+      <button class="submit-btn" [disabled]="!base64Content || !accessToken || !projectId || !processorId || isLoading" (click)="processDocument()">
+        <i class="pi pi-spin pi-spinner" *ngIf="isLoading"></i>
+        <i class="pi pi-file-check" *ngIf="!isLoading"></i>
+        {{ isLoading ? 'Processing document...' : 'Process Document' }}
+      </button>
+
+      <!-- Error -->
+      <div class="error-message" *ngIf="errorMessage">
+        <i class="pi pi-exclamation-triangle"></i> {{ errorMessage }}
+      </div>
+    </div>
+
+    <!-- Image Preview -->
+    <div class="preview-section" *ngIf="imagePreview || isPdf">
+      <h4>Document Preview</h4>
+      <div class="image-box" *ngIf="imagePreview && !isPdf">
+        <img [src]="imagePreview" alt="Document Preview">
+      </div>
+      <div class="image-box" *ngIf="isPdf">
+        <div class="pdf-placeholder">
+          <i class="pi pi-file-pdf"></i>
+          <span>{{ selectedFileName }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results Section -->
+  <div class="result-card" *ngIf="ocrResult || entities.length > 0">
+    <!-- Stats Bar -->
+    <div class="stats-bar" *ngIf="wordCount > 0 || confidenceScore !== null || detectedLanguages.length > 0 || entities.length > 0">
+      <div class="stat-chip" *ngIf="wordCount > 0">
+        <i class="pi pi-align-left"></i>
+        <span>{{ wordCount }} words</span>
+      </div>
+      <div class="stat-chip" *ngIf="pageCount > 0">
+        <i class="pi pi-file"></i>
+        <span>{{ pageCount }} {{ pageCount === 1 ? 'page' : 'pages' }}</span>
+      </div>
+      <div class="stat-chip entity" *ngIf="entities.length > 0">
+        <i class="pi pi-tags"></i>
+        <span>{{ entities.length }} entities</span>
+      </div>
+      <div class="stat-chip confidence" *ngIf="confidenceScore !== null"
+           [class.high]="confidenceScore >= 90"
+           [class.medium]="confidenceScore >= 70 && confidenceScore < 90"
+           [class.low]="confidenceScore < 70">
+        <i class="pi pi-chart-bar"></i>
+        <span>{{ confidenceScore }}% confidence</span>
+      </div>
+      <div class="stat-chip lang" *ngFor="let lang of detectedLanguages">
+        <i class="pi pi-globe"></i>
+        <span>{{ lang }}</span>
+      </div>
+    </div>
+
+    <!-- Result Tabs -->
+    <div class="result-tabs" *ngIf="entities.length > 0">
+      <button class="result-tab" [class.active]="activeTab === 'text'" (click)="activeTab = 'text'">
+        <i class="pi pi-align-left"></i> Text
+      </button>
+      <button class="result-tab" [class.active]="activeTab === 'entities'" (click)="activeTab = 'entities'">
+        <i class="pi pi-tags"></i> Entities
+        <span class="tab-badge">{{ entities.length }}</span>
+      </button>
+    </div>
+
+    <!-- Text Tab -->
+    <div *ngIf="activeTab === 'text'">
+      <div class="result-header">
+        <h3>Extracted Text</h3>
+        <div class="result-actions">
+          <button class="action-btn" (click)="downloadResult()" title="Download as text file">
+            <i class="pi pi-download"></i>
+          </button>
+          <button class="action-btn" (click)="ocrResult && copyToClipboard(ocrResult)" title="Copy to clipboard">
+            <i class="pi pi-copy"></i>
+          </button>
+        </div>
+      </div>
+      <div class="result-content">
+        <pre>{{ ocrResult }}</pre>
+      </div>
+    </div>
+
+    <!-- Entities Tab -->
+    <div *ngIf="activeTab === 'entities'">
+      <div class="result-header">
+        <h3>Detected Entities</h3>
+        <div class="result-actions">
+          <button class="action-btn" (click)="downloadEntitiesJSON()" title="Download as JSON">
+            <i class="pi pi-download"></i>
+          </button>
+          <button class="action-btn" (click)="copyEntitiesToClipboard()" title="Copy as JSON">
+            <i class="pi pi-copy"></i>
+          </button>
+        </div>
+      </div>
+      <div class="entities-table-wrapper" *ngIf="entities.length > 0">
+        <table class="entities-table">
+          <thead>
+            <tr>
+              <th>Type</th>
+              <th>Value</th>
+              <th>Confidence</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let entity of entities">
+              <td><span class="entity-type">{{ entity.type }}</span></td>
+              <td>{{ entity.mentionText }}</td>
+              <td>
+                <span class="entity-confidence" *ngIf="entity.confidence !== null">
+                  {{ entity.confidence }}%
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="no-data" *ngIf="entities.length === 0">
+        No entities detected in this document.
+      </div>
+    </div>
+  </div>
+</div>

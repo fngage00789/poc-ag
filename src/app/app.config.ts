@@ -8,12 +8,16 @@ import { PivotComponent } from './pivot/pivot.component';
 import { OcrComponent } from './ocr/ocr.component';
 import { TesseractOcr } from './tesseract-ocr/tesseract-ocr';
 import { GoogleVisionOcr } from './google-vision-ocr/google-vision-ocr';
+import { GoogleDocumentAi } from './google-document-ai/google-document-ai';
+import { AwsTextractOcr } from './aws-textract-ocr/aws-textract-ocr';
 
 const routes: Routes = [
   { path: 'pivot', component: PivotComponent },
   { path: 'ocr', component: OcrComponent },
   { path: 'tesseract-ocr', component: TesseractOcr },
   { path: 'google-vision-ocr', component: GoogleVisionOcr },
+  { path: 'google-document-ai', component: GoogleDocumentAi },
+  { path: 'aws-textract-ocr', component: AwsTextractOcr },
   { path: '', redirectTo: '/pivot', pathMatch: 'full' }
 ];
 
